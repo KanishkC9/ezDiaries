@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <title>EzDiaries</title>
+  </head>
+
+  <style>
+    body {
+      /*background-image: url(/Users/kanishk/Documents/Websites/PerforatedBrown.jpg);*/
+      background-color: black;
+      line-height: 1;
+      margin: 0;
+      padding: 0;
+      border: 0;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 3vw;
+      font-family: cursive;
+      color: white;
+    }
+
+    h2 {
+      text-align: center;
+      color: white;
+      font-family: verdana;
+      font-size: 5vw;
+    }
+
+    #diary {
+      width: 70%;
+      height: 35vw;
+    }
+
+    textarea {
+      font-family: verdana;
+      font-size: 16px;
+      resize: none;
+      border-radius: 10px;
+    }
+
+    ::placeholder {
+      font-size: 15px;
+      opacity: 0.7;
+    }
+
+    button {
+      margin: 1%;
+      width: 8%;
+      height: 40px;
+      font-size: 1.2vw;
+      border-radius: 14px;
+    }
+
+    #nexter {
+      margin-right: 15%;
+      float: right;
+      background-color: blue;
+      color: white;
+    }
+
+    #submitter {
+      background-color: greenyellow;
+    }
+
+    #Random {
+      background-color: fuchsia;
+    }
+
+    #First {
+      background-color: cyan;
+    }
+
+    #SearchBtn {
+      border-radius: 90px;
+    }
+
+    #SearchBtn:hover {
+      background-color: black;
+      color: white;
+      border-style: double;
+    }
+
+    input {
+      height: 20px;
+      width: 40px;
+      border-style: groove;
+      background-color: whitesmoke;
+    }
+
+    #Previous {
+      float: left;
+      margin-left: 15%;
+      background-color: blueviolet;
+      color: white;
+    }
+
+    #New {
+      background-color: orange;
+    }
+
+    #mainthing {
+      height: 50%;
+      vertical-align: top;
+      line-height: 0px;
+      text-align: center;
+    }
+
+    #Current {
+      background-color: palevioletred;
+    }
+
+    #headings {
+      vertical-align: top;
+      line-height: 0px;
+    }
+
+    #TheButtons {
+      text-align: center;
+    }
+  </style>
+
+  <body onunload="saveEverything()" onload="loadValues()">
+    <div id="headings">
+      <h1><strong>Ez Diaries</strong></h1>
+      <button
+        type="submit"
+        id="Previous"
+        title="Only saved diaries can use Previous"
+      >
+        PREVIOUS
+      </button>
+      <button type="submit" id="nexter">NEXT</button>
+      <h2 id="H2">DD/MM/YYYY</h2>
+    </div>
+
+    <div id="mainthing">
+      <textarea id="diary"></textarea>
+    </div>
+
+    <div id="TheButtons">
+      <button type="submit" id="First" title="Shows your first entry">
+        FIRST
+      </button>
+      <button type="submit" id="Random">RANDOM</button>
+
+      <!--        <input type ="date" id = "DATE" value = "2001-10-09">-->
+      <input
+        type="text"
+        onkeyup="this.value=this.value.replace(/[^\d]/,'')"
+        id="DD"
+        placeholder="dd"
+      />
+      <input
+        type="text"
+        onkeyup="this.value=this.value.replace(/[^\d]/,'')"
+        id="MM"
+        placeholder="mm"
+      />
+      <input
+        type="text"
+        onkeyup="this.value=this.value.replace(/[^\d]/,'')"
+        id="YYYY"
+        placeholder="yyyy"
+      />
+      <button
+        type="submit"
+        id="SearchBtn"
+        title="After Filling the Date Press this Button"
+      >
+        SEARCH
+      </button>
+
+      <button type="submit" id="Current">CURRENT</button>
+
+      <button type="submit" id="New">NEW</button>
+      <button type="submit" id="submitter">SAVE</button>
+    </div>
+
+    <script>
+      let hashTable = new Array(365);
+      let orderedArray = [];
+      let index = -1;
+      let numElements = 0;
+      let currentDate = -1;
+      let initialTextValue = "";
+      let finalTextValue = "";
+
+      function curday() {
+        let today = new Date();
+        var dd = today.getDate();
+        var mm = today.getMonth() + 1; //As January is 0.
+        var yyyy = today.getFullYear();
+
+        return (dd * 100 + mm) * 10000 + yyyy; //month day year format
+      }
+
+      function clear() {
+        localStorage.clear();
+      }
+
+      function stringCurDay(disDate) {
+        let datey = disDate;
+        let year = true;
+        let month = true;
+        let day = true;
+        let YEAR = 0;
+        let MONTH = 0;
+        let DAY = 0;
+
+        while (true) {
+          if (year) {
+            // year
+            let year4 = datey % 10;
+            datey = parseInt(datey / 10);
+            let year3 = datey % 10;
+            datey = parseInt(datey / 10);
+
+            let year2 = datey % 10;
+            datey = parseInt(datey / 10);
+            let year1 = datey % 10;
+            datey = parseInt(datey / 10);
+
+            YEAR = year1 * 1000 + year2 * 100 + year3 * 10 + year4;
+            //console.log(YEAR);
+            year = false;
+          } else if (month) {
+            let month2 = datey % 10;
+            datey = parseInt(datey / 10);
+            let month1 = datey % 10;
+            datey = parseInt(datey / 10);
+            MONTH = month1 * 10 + month2;
+            month = false;
+          } else if (day) {
+            let day2 = datey % 10;
+            datey = parseInt(datey / 10);
+            let day1 = datey % 10;
+            datey = parseInt(datey / 10);
+            DAY = day1 * 10 + day2;
+
+            day = false;
+
+            // work
+
+            break;
+          }
+        }
+        return DAY.toString() + "/" + MONTH.toString() + "/" + YEAR.toString();
+      }
+
+      function saveEverything() {
+        localStorage.setItem("localHashTable", JSON.stringify(hashTable));
+
+        localStorage.setItem("localorderedArray", JSON.stringify(orderedArray));
+
+        localStorage.setItem("localIndex", JSON.stringify(index));
+
+        localStorage.setItem("localNumElements", JSON.stringify(numElements));
+
+        localStorage.setItem("localCurrentDate", JSON.stringify(currentDate));
+
+        localStorage.setItem("localInitialTextValue", initialTextValue);
+
+        localStorage.setItem("localFinalTextValue", finalTextValue);
+
+        localStorage.setItem("dateH2", document.getElementById("H2").value);
+
+        localStorage.setItem(
+          "diaryEntry",
+          document.getElementById("diary").value
+        );
+      }
+
+      function loadValues() {
+        if (localStorage.getItem("diaryEntry") !== null) {
+          hashTable = JSON.parse(localStorage.getItem("localHashTable"));
+
+          orderedArray = JSON.parse(localStorage.getItem("localorderedArray"));
+
+          index = JSON.parse(localStorage.getItem("localIndex"));
+
+          numElements = JSON.parse(localStorage.getItem("localNumElements"));
+
+          currentDate = JSON.parse(localStorage.getItem("localCurrentDate"));
+
+          initialTextValue = localStorage.getItem("localInitialTextValue");
+
+          finalTextValue = localStorage.getItem("localFinalTextValue");
+
+          if (JSON.parse(localStorage.getItem("localCurrentDate")) === -1) {
+            document.getElementById("H2").innerText = "DD/MM/YYYY";
+          } else {
+            document.getElementById("H2").innerText = stringCurDay(
+              JSON.parse(localStorage.getItem("localCurrentDate"))
+            );
+          }
+
+          var x = document.getElementById("diary");
+          x.value = localStorage.getItem("diaryEntry");
+        }
+      }
+
+      function rehash() {
+        alert(
+          "REHASHING NOW,Contact kanishkchaudhary9101@gmail.com to claim your $100"
+        );
+        let newCapacity = 2 * hashTable.length;
+        let newArr = new Array(newCapacity);
+        let dupHashTable = hashTable;
+        hashTable = newArr;
+
+        for (let i = 0; i < dupHashTable.length; i++) {
+          if (hashTable[i] == null) {
+            continue;
+          } else {
+            let obj = dupHashTable[i];
+            put(obj.date);
+          }
+        }
+      }
+
+      function calculateLoad() {
+        let num1 = numElements;
+        let num2 = hashTable.length;
+
+        return (num1 / num2) * 100;
+      }
+
+      function put(date) {
+        // date is in dd/mm/yyyy
+        let loadFactorLimit = calculateLoad();
+        if (loadFactorLimit > 60) {
+          rehash();
+        }
+
+        let hashedIndex = date % hashTable.length;
+
+        if (hashTable[hashedIndex] != null) {
+          if (date === hashTable[hashedIndex].date) {
+            // updating
+            if (currentDate === -1) {
+              var x = document.getElementById("diary");
+              x.value =
+                orderedArray[hashTable[hashedIndex].index].textarea +
+                "\n" +
+                "\n" +
+                x.value;
+              orderedArray[hashTable[hashedIndex].index].textarea = x.value;
+            } else {
+              orderedArray[hashTable[hashedIndex].index].textarea =
+                document.getElementById("diary").value;
+            }
+
+            initialTextValue = document.getElementById("diary").value;
+            finalTextValue = document.getElementById("diary").value;
+            index = hashTable[hashedIndex].index;
+          } else {
+            let index2 = hashedIndex;
+            let keepGoing = true;
+            while (keepGoing) {
+              if (hashTable[index2] == null) {
+                hashTable[index2] = { date: date, index: orderedArray.length };
+                numElements++;
+                index = orderedArray.length;
+                orderedArray.push({
+                  textarea: document.getElementById("diary").value,
+                  date: date,
+                });
+                initialTextValue = document.getElementById("diary").value;
+                finalTextValue = document.getElementById("diary").value;
+                keepGoing = false;
+                break;
+              } else if (date === hashTable[index2].date) {
+                if (currentDate === -1) {
+                  var x = document.getElementById("diary");
+                  x.value =
+                    orderedArray[hashTable[index2].index].textarea +
+                    "\n" +
+                    "\n" +
+                    x.value;
+                  orderedArray[hashTable[index2].index].textarea = x.value;
+                } else {
+                  orderedArray[hashTable[index2].index].textarea =
+                    document.getElementById("diary").value;
+                }
+
+                initialTextValue = document.getElementById("diary").value;
+                finalTextValue = document.getElementById("diary").value;
+                index = hashTable[index2].index;
+                keepGoing = false;
+                break;
+              }
+
+              if (keepGoing) {
+                index2 = (index2 + 1) % hashTable.length;
+              }
+            }
+          }
+        } else {
+          hashTable[hashedIndex] = { date: date, index: orderedArray.length };
+          numElements++;
+          index = orderedArray.length;
+          orderedArray.push({
+            textarea: document.getElementById("diary").value,
+            date: date,
+          });
+          initialTextValue = document.getElementById("diary").value;
+          finalTextValue = document.getElementById("diary").value;
+        }
+
+        document.getElementById("H2").innerText = stringCurDay(date);
+        currentDate = date;
+
+        //      alert(hashTable[hashedIndex]);
+      }
+
+      // ------------- end of put
+
+      function notSaved() {
+        //                let todaysDate = 0;
+        //
+        //                if(currentDate === -1)
+        //                    {
+        //
+        //                         todaysDate = curday();
+        //                    }
+        //                else
+        //                    {
+        //                         todaysDate = currentDate;
+        //                    }
+        //
+        //
+        //                let indexo = todaysDate%hashTable.length;
+        //
+        //
+        //
+        //                if( hashTable[indexo] == null)
+        //                    {
+
+        if (initialTextValue !== finalTextValue) {
+          return true;
+        } else {
+          return false;
+        }
+
+        //                    }
+        //
+        //
+        //                if(hashTable[indexo].date === todaysDate)
+        //
+        //                    {
+        //
+        //                       if(initialTextValue !== finalTextValue)
+        //                           {
+        //                               return true;
+        //                           }
+        //                        else
+        //                        {
+        //                            return false;
+        //
+        //                        }
+        //
+        //                    }
+        //
+        //                else
+        //                    {
+        //                        let finalIndex = index;
+        //                        while( hashTable[finalIndex]!= null)
+        //                            {
+        //                                 if(hashTable[index].date === todaysDate)
+        //                                {
+        //                                   if(initialTextValue !== finalTextValue)
+        //                                {
+        //                                        return true;
+        //                                }
+        //                                else
+        //                                {
+        //                                     return false;
+        //
+        //                                }
+        //
+        //                                }
+        //
+        //                                finalIndex = (finalIndex+1)%hashTable.length;
+        //
+        //
+        //                            }
+        //
+        //                        return true;
+        //
+        //                    }
+        //
+      }
+
+      function search(date) {
+        let finalIndex = date % hashTable.length;
+
+        if (hashTable[finalIndex] == null) {
+          alert("No Entry found on this Date");
+        } else if (date === hashTable[finalIndex].date) {
+          let value1 = orderedArray[hashTable[finalIndex].index].textarea;
+          //                                    if(notSaved())
+          //                                   {
+          //
+          //                                       alert('Please save your current file before searching');
+          //
+          //                                   }
+          index = hashTable[finalIndex].index;
+          var x = document.getElementById("diary");
+          x.value = value1;
+          document.getElementById("H2").innerText = stringCurDay(date);
+          currentDate = date;
+          initialTextValue = value1;
+          finalTextValue = value1;
+        } else {
+          let index5 = finalIndex;
+          let keepGoing = true;
+
+          while (keepGoing) {
+            if (hashTable[index5] == null) {
+              alert("No such entry found");
+              keepGoing = false;
+              break;
+            } else if (date === hashTable[index5].date) {
+              let value1 = orderedArray[hashTable[index5].index].textarea;
+
+              index = hashTable[index5].index;
+              var x = document.getElementById("diary");
+              x.value = value1;
+              document.getElementById("H2").innerText = stringCurDay(date);
+              currentDate = date;
+              initialTextValue = value1;
+              finalTextValue = value1;
+              keepGoing = false;
+              break;
+            }
+
+            index5 = (index5 + 1) % hashTable.length; // linearProbing
+          }
+        }
+      }
+
+      // call the save method for each method
+
+      document.getElementById("First").onclick = function () {
+        finalTextValue = document.getElementById("diary").value;
+
+        if (orderedArray.length > 0) {
+          if (notSaved()) {
+            if (
+              confirm(
+                "Unsaved changes have been made to your diary, Do you want to save?"
+              )
+            ) {
+              if (currentDate === -1) {
+                put(curday());
+              } else {
+                put(currentDate);
+              }
+            }
+          }
+
+          var x = document.getElementById("diary");
+          x.value = orderedArray[0].textarea;
+          document.getElementById("H2").innerText = stringCurDay(
+            orderedArray[0].date
+          );
+          initialTextValue = orderedArray[0].textarea;
+          finalTextValue = orderedArray[0].textarea;
+          currentDate = orderedArray[0].date;
+          index = 0;
+        } else {
+          alert("You have not created an Entry yet");
+        }
+      };
+
+      document.getElementById("Random").onclick = function () {
+        finalTextValue = document.getElementById("diary").value;
+
+        if (orderedArray.length > 0) {
+          if (notSaved()) {
+            if (
+              confirm(
+                "Unsaved changes have been made to your diary, Do you want to save?"
+              )
+            ) {
+              if (currentDate === -1) {
+                put(curday());
+              } else {
+                put(currentDate);
+              }
+            } else {
+            }
+          }
+
+          let randomNumber = Math.floor(
+            Math.random() * Math.floor(orderedArray.length)
+          );
+
+          var x = document.getElementById("diary");
+          x.value = orderedArray[randomNumber].textarea;
+          document.getElementById("H2").innerText = stringCurDay(
+            orderedArray[randomNumber].date
+          );
+          initialTextValue = orderedArray[randomNumber].textarea;
+          finalTextValue = orderedArray[randomNumber].textarea;
+          currentDate = orderedArray[randomNumber].date;
+          index = randomNumber;
+        } else {
+          alert("You have not created an Entry yet");
+        }
+      };
+
+      document.getElementById("SearchBtn").onclick = function () {
+        finalTextValue = document.getElementById("diary").value;
+        let toFind = 0;
+
+        if (orderedArray.length > 0) {
+          if (
+            document.getElementById("DD").value === "" ||
+            document.getElementById("MM").value === "" ||
+            document.getElementById("YYYY").value === ""
+          ) {
+            alert("Please fill the date correctly");
+          } else if (notSaved()) {
+            if (
+              confirm(
+                "Unsaved changes have been made to your diary, Do you want to save?"
+              )
+            ) {
+              if (currentDate === -1) {
+                put(curday());
+              } else {
+                put(currentDate);
+              }
+            }
+          }
+
+          var day = document.getElementById("DD").value;
+          var month = document.getElementById("MM").value;
+          var year = document.getElementById("YYYY").value;
+
+          let dd = parseInt(day, 10);
+          let mm = parseInt(month, 10);
+          let yyyy = parseInt(year, 10);
+
+          toFind = (dd * 100 + mm) * 10000 + yyyy;
+
+          let today = new Date();
+          var currentYear = today.getFullYear();
+
+          if (yyyy > currentYear) {
+            alert("Not Possible");
+            return;
+          }
+
+          search(toFind);
+        } else {
+          alert("You have not created an Entry yet");
+        }
+      };
+
+      document.getElementById("Previous").onclick = function () {
+        if (currentDate === -1) {
+          return;
+        }
+        finalTextValue = document.getElementById("diary").value;
+
+        if (orderedArray.length === 0) {
+          alert("You have not created an Entry yet");
+          return;
+        }
+
+        if (index - 1 === -1) {
+          alert("you cannot go previous from this");
+        } else {
+          if (notSaved()) {
+            if (
+              confirm(
+                "Unsaved changes have been made to your diary, Do you want to save?"
+              )
+            ) {
+              if (currentDate === -1) {
+                put(curday());
+              } else {
+                put(currentDate);
+              }
+            }
+
+            index = index - 1;
+            var x = document.getElementById("diary");
+            x.value = orderedArray[index].textarea;
+            document.getElementById("H2").innerText = stringCurDay(
+              orderedArray[index].date
+            );
+            initialTextValue = orderedArray[index].textarea;
+            finalTextValue = orderedArray[index].textarea;
+            currentDate = orderedArray[index].date;
+          } else {
+            index = index - 1;
+            var x = document.getElementById("diary");
+            x.value = orderedArray[index].textarea;
+            document.getElementById("H2").innerText = stringCurDay(
+              orderedArray[index].date
+            );
+            initialTextValue = orderedArray[index].textarea;
+            finalTextValue = orderedArray[index].textarea;
+            currentDate = orderedArray[index].date;
+          }
+        }
+      };
+
+      document.getElementById("nexter").onclick = function () {
+        if (currentDate === -1) {
+          return;
+        }
+        finalTextValue = document.getElementById("diary").value;
+
+        if (orderedArray.length === 0) {
+          alert("You have not created an Entry yet");
+          return;
+        }
+
+        if (index + 1 === orderedArray.length) {
+          alert("You cannot go next from this");
+        } else {
+          if (notSaved()) {
+            if (
+              confirm(
+                "Unsaved changes have been made to your diary, Do you want to save?"
+              )
+            ) {
+              if (currentDate === -1) {
+                put(curday());
+              } else {
+                put(currentDate);
+              }
+            }
+
+            index = index + 1;
+            var x = document.getElementById("diary");
+            x.value = orderedArray[index].textarea;
+            document.getElementById("H2").innerText = stringCurDay(
+              orderedArray[index].date
+            );
+            initialTextValue = orderedArray[index].textarea;
+            finalTextValue = orderedArray[index].textarea;
+            currentDate = orderedArray[index].date;
+          } else {
+            index = index + 1;
+            var x = document.getElementById("diary");
+            x.value = orderedArray[index].textarea;
+            document.getElementById("H2").innerText = stringCurDay(
+              orderedArray[index].date
+            );
+            initialTextValue = orderedArray[index].textarea;
+            finalTextValue = orderedArray[index].textarea;
+            currentDate = orderedArray[index].date;
+          }
+        }
+      };
+
+      document.getElementById("submitter").onclick = function () {
+        if (document.getElementById("diary").value === "") {
+          alert("Please write Something in order to Save");
+        } else {
+          if (currentDate === -1 || currentDate === curday()) {
+            put(curday());
+          } else if (currentDate !== curday()) {
+            put(currentDate);
+          }
+
+          initialTextValue = document.getElementById("diary").value;
+          finalTextValue = document.getElementById("diary").value;
+        }
+      };
+
+      document.getElementById("Current").onclick = function () {
+        finalTextValue = document.getElementById("diary").value;
+
+        if (orderedArray.length === 0) {
+          alert("You have no where to go");
+        } else {
+          if (notSaved()) {
+            if (
+              confirm(
+                "Unsaved changes have been made to your diary, Do you want to save?"
+              )
+            ) {
+              if (currentDate === -1) {
+                put(curday());
+              } else {
+                put(currentDate);
+              }
+
+              index = orderedArray.length - 1;
+              var x = document.getElementById("diary");
+              x.value = orderedArray[index].textarea;
+              document.getElementById("H2").innerText = stringCurDay(
+                orderedArray[index].date
+              );
+              initialTextValue = orderedArray[index].textarea;
+              finalTextValue = orderedArray[index].textarea;
+              currentDate = orderedArray[index].date;
+            }
+          }
+
+          index = orderedArray.length - 1;
+          var x = document.getElementById("diary");
+          x.value = orderedArray[index].textarea;
+          document.getElementById("H2").innerText = stringCurDay(
+            orderedArray[index].date
+          );
+          initialTextValue = orderedArray[index].textarea;
+          finalTextValue = orderedArray[index].textarea;
+          currentDate = orderedArray[index].date;
+        }
+      };
+
+      document.getElementById("New").onclick = function () {
+        finalTextValue = document.getElementById("diary").value;
+
+        if (notSaved()) {
+          if (
+            confirm(
+              "Unsaved changes have been made to your diary, Do you want to save?"
+            )
+          ) {
+            if (currentDate === -1) {
+              put(curday());
+              alert("changes saved to" + " " + stringCurDay(curday()));
+            } else {
+              put(currentDate);
+              alert("changes saved to" + " " + stringCurDay(currentDate));
+            }
+          }
+        }
+
+        initialTextValue = "";
+        finalTextValue = "";
+        document.getElementById("diary").value = "";
+        currentDate = -1;
+        document.getElementById("H2").innerText = "DD/MM/YYYY";
+      };
+    </script>
+  </body>
+</html>
